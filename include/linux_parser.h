@@ -4,7 +4,7 @@
 #include <fstream>
 #include <regex>
 #include <string>
-
+using std::string;
 namespace LinuxParser {
 // Paths
 const std::string kProcDirectory{"/proc/"};
@@ -26,6 +26,7 @@ int TotalProcesses();
 int RunningProcesses();
 std::string OperatingSystem();
 std::string Kernel();
+long GetSystemValue(string key, string path);
 
 // CPU
 enum CPUStates {
