@@ -1,18 +1,19 @@
 #include <string>
 
+#include <iostream>
 #include "format.h"
-
 using std::string;
 
-// TODO: Complete this helper function
-// INPUT: Long int measuring seconds
-// OUTPUT: HH:MM:SS
+string Format::timeFormat(long num) {
+  string str = std::to_string(num);
+  if(str.length()<2) str.insert(0, 2 - str.length(), '0');
+  return str;
+}
+
 string Format::ElapsedTime(long seconds) {
   long hours = 0, mins = 0, sec = 0;
   hours = seconds / 3600;
-  mins = (seconds - hours * 3600) / 60;
-  sec = seconds - hours * 3600 - mins * 60;
-  string timeFormatted = std::to_string(hours) + ":" + std::to_string(mins) +
-                         ":" + std::to_string(sec);
-  return timeFormatted;
+  mins = (seconds / 60) % 60;
+  sec = seconds % 60;
+  return timeFormat(hours) + ":" + timeFormat(mins) + ":" + timeFormat(sec);
 }

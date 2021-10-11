@@ -2,7 +2,7 @@
 #define NCURSES_DISPLAY_H
 
 #include <curses.h>
-
+#include <thread>
 #include "process.h"
 #include "system.h"
 

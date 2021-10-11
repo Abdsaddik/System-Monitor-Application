@@ -34,7 +34,6 @@ long LinuxParser::GetSystemValue(string key, string path) {
   return val;
 }
 
-// DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
   string line;
   string key;
@@ -57,7 +56,6 @@ string LinuxParser::OperatingSystem() {
   return value;
 }
 
-// DONE: An example of how to read data from the filesystem
 string LinuxParser::Kernel() {
   string os, kernel, version;
   string line;
@@ -90,7 +88,6 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() {
   long memTotal =
       GetSystemValue("MemTotal:", kProcDirectory + kMeminfoFilename);
@@ -98,7 +95,6 @@ float LinuxParser::MemoryUtilization() {
   return static_cast<float>(memTotal - memFree) / memTotal;
 }
 
-// TODO: Read and return the system uptime
 long LinuxParser::UpTime() {
   string line;
   long uptime = 0;
@@ -112,10 +108,8 @@ long LinuxParser::UpTime() {
   return uptime;
 }
 
-// TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() { return sysconf(_SC_CLK_TCK) * UpTime(); }
 
-// TODO: Read and return the number of active jiffies for a PID
 long LinuxParser::ActiveJiffies(int pid) {
   string line;
   string value;
@@ -132,7 +126,6 @@ long LinuxParser::ActiveJiffies(int pid) {
   return sum;
 }
 
-// TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
   string line;
   string value;
@@ -161,7 +154,6 @@ long LinuxParser::ActiveJiffies() {
   return sum;
 }
 
-// TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() {
   string line;
   string value;
@@ -215,7 +207,7 @@ string LinuxParser::Command(int pid) {
   return cmd;
 }
 
-// TODO: Read and return the memory used by a process
+// Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
   // reference for the way how the double was changed to a string is:
   // https://stackoverflow.com/questions/332111/how-do-i-convert-a-double-into-a-string-in-c
@@ -226,14 +218,14 @@ string LinuxParser::Ram(int pid) {
   return outStr.str();
 }
 
-// TODO: Read and return the user ID associated with a process
+// Read and return the user ID associated with a process
 string LinuxParser::Uid(int pid) {
   long uid =
       GetSystemValue("Uid:", kProcDirectory + std::to_string(pid) + "/status");
   return to_string(uid);
 }
 
-// TODO: Read and return the user associated with a process
+// Read and return the user associated with a process
 string LinuxParser::User(int pid) {
   string line, username, passwd, uid;
   string uid_ = Uid(pid);
@@ -249,7 +241,7 @@ string LinuxParser::User(int pid) {
   return username;
 }
 
-// TODO: Read and return the uptime of a process
+// Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
   long uptimeError = -1;
   string line, val;
