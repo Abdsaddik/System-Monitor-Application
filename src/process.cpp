@@ -32,15 +32,15 @@ float Process::CpuUtilization() const {
       statVal.push_back(val);
     }
     long sysFreq = sysconf(_SC_CLK_TCK);
-    long upTimeSys = LinuxParser::UpTime();
+    float upTimeSys = LinuxParser::UpTime();
     long upTimeProc = std::stol(statVal[13]);
     long sTimeKern = std::stol(statVal[14]);
     long cutime = std::stol(statVal[15]);
     long cstime = std::stol(statVal[16]);
     long startTime = std::stol(statVal[21]);
     long totalTime = upTimeProc + sTimeKern + cutime + cstime;
-    float processUptime = upTimeSys - (startTime / sysFreq);
-    cpuUti = ((totalTime / sysFreq) / processUptime);
+    float processUptime = upTimeSys - (static_cast<float>(startTime) / sysFreq);
+    cpuUti = ((static_cast<float>(totalTime) / sysFreq) / processUptime);
   }
   return cpuUti;
 }

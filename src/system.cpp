@@ -24,7 +24,8 @@ vector<Process>& System::Processes() {
     if (process.Ram() != "" && process.Command() != "")
       processes_.emplace_back(process);
   }
-  std::sort(processes_.begin(), processes_.end());
+  // sort processes decreasend according to their cpu utilization
+  std::sort(processes_.begin(), processes_.end(), [](auto a, auto b){return b<a;});
   return processes_;
 }
 

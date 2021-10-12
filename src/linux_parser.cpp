@@ -89,8 +89,7 @@ vector<int> LinuxParser::Pids() {
 }
 
 float LinuxParser::MemoryUtilization() {
-  long memTotal =
-      GetSystemValue("MemTotal:", kProcDirectory + kMeminfoFilename);
+  long memTotal = GetSystemValue("MemTotal:", kProcDirectory + kMeminfoFilename);
   long memFree = GetSystemValue("MemFree:", kProcDirectory + kMeminfoFilename);
   return static_cast<float>(memTotal - memFree) / memTotal;
 }
@@ -177,7 +176,6 @@ float LinuxParser::CpuUtilization() {
   long active = ActiveJiffies();
   long idle = IdleJiffies();
   usleep(50000);
-  // read cpu usage after 100 ms time difference
   long activeNew = ActiveJiffies();
   long idleNew = IdleJiffies();
 
@@ -212,7 +210,7 @@ string LinuxParser::Command(int pid) {
 // virtual memory
 string LinuxParser::Ram(int pid) {
   long siztInKiB = GetSystemValue(
-      "VmRss:", kProcDirectory + std::to_string(pid) + "/status");
+      "VmRSS:", kProcDirectory + std::to_string(pid) + "/status");
   std::ostringstream outStr;
   outStr << static_cast<double>(siztInKiB) / 1024;
   return outStr.str();
@@ -244,15 +242,18 @@ string LinuxParser::User(int pid) {
 // Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) {
   long uptimeError = -1;
-  string line, val;
+  string line; 
+  string val;
   std::ifstream stream(kProcDirectory + to_string(pid) + "/stat");
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
     for (auto cnt = 0; cnt < 22; cnt++) {
       linestream >> val;
-      if (cnt == 21) return std::stoi(val);
+      // here is the value returned in seconde
+      if (cnt == 21) return std::stoi(val)/sysconf(_SC_CLK_TCK);
     }
   }
+  // in error case, the value -1 is returned
   return uptimeError;
 }
