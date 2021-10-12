@@ -19,7 +19,10 @@ Processor& System::Cpu() { return cpu_; }
 vector<Process>& System::Processes() {
   processes_.clear();
   for (auto it : LinuxParser::Pids()) {
-    processes_.emplace_back(it);
+    Process process(it);
+    // filter dummy processes
+    if (process.Ram() != "" && process.Command() != "")
+      processes_.emplace_back(process);
   }
   std::sort(processes_.begin(), processes_.end());
   return processes_;
