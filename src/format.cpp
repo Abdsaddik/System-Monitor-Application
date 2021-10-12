@@ -6,7 +6,7 @@ using std::string;
 
 string Format::timeFormat(long num) {
   string str = std::to_string(num);
-  if(str.length()<2) str.insert(0, 2 - str.length(), '0');
+  if (str.length() < 2) str.insert(0, 2 - str.length(), '0');
   return str;
 }
 

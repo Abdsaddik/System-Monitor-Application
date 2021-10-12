@@ -176,7 +176,7 @@ long LinuxParser::IdleJiffies() {
 float LinuxParser::CpuUtilization() {
   long active = ActiveJiffies();
   long idle = IdleJiffies();
-  usleep(1000000);
+  usleep(50000);
   // read cpu usage after 100 ms time difference
   long activeNew = ActiveJiffies();
   long idleNew = IdleJiffies();
@@ -208,11 +208,11 @@ string LinuxParser::Command(int pid) {
 }
 
 // Read and return the memory used by a process
+// according to man pages, the used memory is vmRss and not vmSize which is the
+// virtual memory
 string LinuxParser::Ram(int pid) {
-  // reference for the way how the double was changed to a string is:
-  // https://stackoverflow.com/questions/332111/how-do-i-convert-a-double-into-a-string-in-c
   long siztInKiB = GetSystemValue(
-      "VmSize:", kProcDirectory + std::to_string(pid) + "/status");
+      "VmRss:", kProcDirectory + std::to_string(pid) + "/status");
   std::ostringstream outStr;
   outStr << static_cast<double>(siztInKiB) / 1024;
   return outStr.str();
