@@ -3,6 +3,7 @@
 
 class Processor {
  public:
+  // return the total cpu utilization of the system
   float Utilization();
 };
 
