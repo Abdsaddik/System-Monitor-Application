@@ -19,6 +19,25 @@ The following data is shown for each process:
 - Command used to start the process
 ## Workflow
 - clone the repository  
-```  git clone  https://github.com/abdulkarim723/System-Monitor-Application.git  ```  
+```
+git clone  https://github.com/abdulkarim723/System-Monitor-Application.git  
+```
 - install ncurses on your local system  
-```sudo apt install libncurses5-dev libncursesw5-dev```
+```
+sudo apt install libncurses5-dev libncursesw5-dev
+```
+- go inside the downloaded folder  
+```
+cd System-Monitor-Application/
+```
+- Build the application  
+```
+make build
+```
+- run the application  
+```
+./monitor
+```
+
+As a result, something similar to the following is shown on the terminal
+<img src="monitor_.png" width="800" height="200" />
