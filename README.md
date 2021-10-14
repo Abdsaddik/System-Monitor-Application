@@ -36,7 +36,7 @@ make build
 ```
 - run the application  
 ```
-./monitor
+sudo ./monitor
 ```
 
 As a result, something similar to the following is shown on the terminal
