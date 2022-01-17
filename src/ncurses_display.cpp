@@ -11,9 +11,12 @@
 #include <future>
 #include <algorithm>
 #include <memory>
+#include <mutex>
 
 using std::string;
 using std::to_string;
+
+std::mutex mutex_;
 
 // 50 bars uniformly displayed from 0 - 100 %
 // 2% is one bar(|)
@@ -73,36 +76,19 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   mvwprintw(window, row, time_column, "TIME+");
   mvwprintw(window, row, command_column, "COMMAND");
   wattroff(window, COLOR_PAIR(2));
-  std::thread t;
   std::vector<std::future<void>> ftr;
-  //std::shared_ptr<Process> ptr = 
   for (int i = 0; i < n; ++i) {
-    //t = std::thread(LineDisplay, window, processes[i], row);
     auto p = processes[i];
-    ftr.emplace_back(std::async(LineDisplay, window, std::move(p), std::move(row)));
-    //LineDisplay(window, processes[i], row);
-    /*
-    // Clear the line
-    mvwprintw(window, ++row, pid_column, (string(window->_maxx - 2, ' ').c_str()));
-    
-    processes[i].calcProcessValues();
-    auto &data = processes[i].data_;
-    mvwprintw(window, row, pid_column, to_string(data.pid).c_str());
-    mvwprintw(window, row, user_column, data.user.c_str());
-    mvwprintw(window, row, cpu_column, to_string(data.cpuUti * 100).substr(0, 4).c_str());
-    mvwprintw(window, row, ram_column, data.ram.c_str());
-    mvwprintw(window, row, time_column, data.upTime.c_str());
-    mvwprintw(window, row, command_column, data.command.substr(0, window->_maxx - 46).c_str());
-    */
+    ftr.emplace_back(std::async(LineDisplay, window, std::move(p), std::move(++row)));
   }
   std::for_each(ftr.begin(), ftr.end(), [](std::future<void>& f){f.wait();});
 }
 
 void NCursesDisplay::LineDisplay(WINDOW* win_, Process&& process_, int&& row_){
-  // Clear the line
-    mvwprintw(win_, ++row_, 2, (string(win_->_maxx - 2, ' ').c_str()));
-    
     process_.calcProcessValues();
+    std::lock_guard<std::mutex> lck(mutex_);
+  // Clear the line
+    mvwprintw(win_, row_, 2, (string(win_->_maxx - 2, ' ').c_str())); 
     auto &data = process_.data_;
     mvwprintw(win_, row_, 2, to_string(data.pid).c_str());
     mvwprintw(win_, row_, 9, data.user.c_str());
@@ -133,7 +119,7 @@ void NCursesDisplay::Display(System& system, int n) {
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   endwin();
 }
