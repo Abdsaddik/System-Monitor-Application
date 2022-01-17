@@ -6,6 +6,7 @@
 
 #include "linux_parser.h"
 #include "process.h"
+#include "format.h"
 
 using std::string;
 using std::to_string;
@@ -59,4 +60,13 @@ long Process::UpTime() { return LinuxParser::UpTime() - LinuxParser::UpTime(pid_
 
 bool Process::operator<(Process const& a) const {
   return CpuUtilization() < a.CpuUtilization();
+}
+
+void Process::calcProcessValues(){
+  data_.pid = Pid();
+  data_.user = User();
+  data_.command = Command();
+  data_.cpuUti = CpuUtilization();
+  data_.ram = Ram();
+  data_.upTime = Format::ElapsedTime(UpTime());
 }

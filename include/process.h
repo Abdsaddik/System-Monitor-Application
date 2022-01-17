@@ -2,6 +2,16 @@
 #define PROCESS_H
 
 #include <string>
+
+struct processStruct{
+  int pid;
+  std::string user;
+  std::string command;
+  float cpuUti;
+  std::string ram;
+  std::string upTime;
+};
+
 /*
 Basic class for Process representation
 It contains relevant attributes as shown below
@@ -22,9 +32,11 @@ class Process {
   // return uptime of the current process
   long int UpTime();
   bool operator<(Process const& a) const;
-
+  void calcProcessValues();
+  processStruct data_;
  private:
   int pid_;
+  
 };
 
 #endif
