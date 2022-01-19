@@ -107,14 +107,15 @@ void NCursesDisplay::Display(System& system, int n) {
   curs_set(0);    // turn the cursor off
   cbreak();       // terminate ncurses on ctrl + c
   start_color();  // enable color
-
+  int ch;
   int x_max{getmaxx(stdscr)};
   WINDOW* system_window = newwin(9, x_max - 1, 0, 0);
   WINDOW* process_window = newwin(3 + n, x_max - 1, system_window->_maxy + 1, 0);
+  init_pair(1, COLOR_BLUE, COLOR_BLACK);
+  init_pair(2, COLOR_GREEN, COLOR_BLACK);
+nodelay(stdscr, true);
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  while (1) {
-    init_pair(1, COLOR_BLUE, COLOR_BLACK);
-    init_pair(2, COLOR_GREEN, COLOR_BLACK);
+  while ((ch = getch())!=27) { 
     box(system_window, 0, 0);
     box(process_window, 0, 0);
     DisplaySystem(system, system_window);
@@ -122,7 +123,9 @@ void NCursesDisplay::Display(System& system, int n) {
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
+  delwin(system_window);
+  delwin(process_window);
   endwin();
 }
