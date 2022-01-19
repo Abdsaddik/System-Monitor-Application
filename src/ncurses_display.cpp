@@ -80,7 +80,8 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   mvwprintw(window, row, command_column, "COMMAND");
   wattroff(window, COLOR_PAIR(2));
   std::vector<std::future<void>> ftr;
-  for (int i = 0; i < n; ++i) {
+  int processStartIndex = n-10;
+  for (int i = processStartIndex; i < n; ++i) {
     auto p = processes[i];
     ftr.emplace_back(std::async(LineDisplay, window, std::move(p), std::move(++row)));
   }
@@ -105,17 +106,20 @@ void NCursesDisplay::Display(System& system, int n) {
   initscr();      // start ncurses
   noecho();       // do not print input values
   curs_set(0);    // turn the cursor off
-  cbreak();       // terminate ncurses on ctrl + c
+  //cbreak();       // terminate ncurses on ctrl + c
+  keypad(stdscr, TRUE);
   start_color();  // enable color
-  int ch;
+  int ch=0;
   int x_max{getmaxx(stdscr)};
   WINDOW* system_window = newwin(9, x_max - 1, 0, 0);
   WINDOW* process_window = newwin(3 + n, x_max - 1, system_window->_maxy + 1, 0);
   init_pair(1, COLOR_BLUE, COLOR_BLACK);
   init_pair(2, COLOR_GREEN, COLOR_BLACK);
-nodelay(stdscr, true);
+  nodelay(stdscr, true);
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
   while ((ch = getch())!=27) { 
+    if(ch == KEY_UP) { n++;}
+    else if(ch == KEY_DOWN && n>10) {n--;}
     box(system_window, 0, 0);
     box(process_window, 0, 0);
     DisplaySystem(system, system_window);

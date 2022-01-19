@@ -175,7 +175,7 @@ long LinuxParser::IdleJiffies() {
 float LinuxParser::CpuUtilization() {
   long active = ActiveJiffies();
   long idle = IdleJiffies();
-  usleep(100000);
+  usleep(40000);
   long activeNew = ActiveJiffies();
   long idleNew = IdleJiffies();
 
