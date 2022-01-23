@@ -16,7 +16,7 @@ using std::vector;
 
 Processor& System::Cpu() { return cpu_; }
 
-vector<Process>& System::Processes() {
+vector<Process> System::Processes() {
   processes_.clear();
   for (auto it : LinuxParser::Pids()) {
     Process process(it);

@@ -63,8 +63,8 @@ void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
   wrefresh(window);
 }
 
-void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
-                                      WINDOW* window, int n) {
+void NCursesDisplay::DisplayProcesses(std::vector<Process>&& processes,
+                                      WINDOW* window, int& n) {
   int ret;
   int row{0};
   int const pid_column{2};
@@ -77,56 +77,40 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   {
     ret = wattron(window, COLOR_PAIR(2));
   if(ret!=OK){
-    endwin();
-    std::cout << "Error by init pair color" << std::endl;
-    exit(1);
+    EndProg("Error by the function mvwprintw" );
   }
   ret = mvwprintw(window, ++row, pid_column, "PID");
   if(ret!=OK){
-    endwin();
-    std::cout << "Error by the function mvwprintw" << std::endl;
-    exit(1);
+    EndProg("Error by the function mvwprintw" );
   }
   ret = mvwprintw(window, row, user_column, "USER");
   if(ret!=OK){
-    endwin();
-    std::cout << "Error by the function mvwprintw" << std::endl;
-    exit(1);
+    EndProg("Error by the function mvwprintw" );
   }
   ret = mvwprintw(window, row, cpu_column, "CPU[%%]");
   if(ret!=OK){
-    endwin();
-    std::cout << "Error by the function mvwprintw" << std::endl;
-    exit(1);
+    EndProg("Error by the function mvwprintw" );
   }
   ret = mvwprintw(window, row, ram_column, "RAM[MB]");
   if(ret!=OK){
-    endwin();
-    std::cout << "Error by the function mvwprintw" << std::endl;
-    exit(1);
+    EndProg("Error by the function mvwprintw" );
   }
   ret = mvwprintw(window, row, time_column, "TIME+");
   if(ret!=OK){
-    endwin();
-    std::cout << "Error by the function mvwprintw" << std::endl;
-    exit(1);
+    EndProg("Error by the function mvwprintw" );
   }
   ret = mvwprintw(window, row, command_column, "COMMAND");
   if(ret!=OK){
-    endwin();
-    std::cout << "Error by the function mvwprintw" << std::endl;
-    exit(1);
+    EndProg("Error by the function mvwprintw" );
   }
   ret = wattroff(window, COLOR_PAIR(2));
   if(ret!=OK){
-    endwin();
-    std::cout << "Error by init pair color" << std::endl;
-    exit(1);
+    EndProg("Error by init pair color" );
   }
   std::vector<std::future<void>> ftr;
   int processStartIndex = n-10;
   for (int i = processStartIndex; i < n; ++i) {
-    auto p = processes[i];
+    auto p = std::move(processes[i]);
     ftr.emplace_back(std::async(LineDisplay, window, std::move(p), std::move(++row)));
   }
   std::for_each(ftr.begin(), ftr.end(), [](std::future<void>& f){f.wait();});
@@ -134,25 +118,24 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   catch(const std::exception& e)
   {
     endwin();
-    std::cerr << e.what() << '\n';
+    std::cerr << "Exception detected: " << e.what() << '\n';
   }
-  
-  
 }
 
 void NCursesDisplay::LineDisplay(WINDOW* win_, Process&& process_, int&& row_){
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
   process_.calcProcessValues();
   std::lock_guard<std::mutex> lck(mutex_);
+  
   // Clear the line
     mvwprintw(win_, row_, 2, (string(win_->_maxx - 2, ' ').c_str())); 
     auto &data = process_.data_;
-    mvwprintw(win_, row_, 2, to_string(data.pid).c_str());
-    mvwprintw(win_, row_, 9, data.user.c_str());
-    mvwprintw(win_, row_, 20, to_string(data.cpuUti * 100).substr(0, 4).c_str());
-    mvwprintw(win_, row_, 30, data.ram.c_str());
-    mvwprintw(win_, row_, 40, data.upTime.c_str());
-    mvwprintw(win_, row_, 50, data.command.substr(0, win_->_maxx - 46).c_str());
+    mvwprintw(win_, row_, 2, to_string(data->pid).c_str());
+    mvwprintw(win_, row_, 9, data->user.c_str());
+    mvwprintw(win_, row_, 20, to_string(data->cpuUti * 100).substr(0, 4).c_str());
+    mvwprintw(win_, row_, 30, data->ram.c_str());
+    mvwprintw(win_, row_, 40, data->upTime.c_str());
+    mvwprintw(win_, row_, 50, data->command.substr(0, win_->_maxx - 46).c_str());
     wrefresh(win_);
 }
 
@@ -162,20 +145,16 @@ void NCursesDisplay::Display(System& system, int n) {
   initscr();      // start ncurses
   noecho();       // do not print input values
   curs_set(0);    // turn the cursor off
-  //cbreak();       // terminate ncurses on ctrl + c
-  //keypad(stdscr, TRUE);
   start_color();  // enable color
   int ch=0;
   int x_max{getmaxx(stdscr)};
   WINDOW* system_window = newwin(9, x_max - 1, 0, 0);
   if(system_window == NULL){
-    std::cout << "memory allocation error" << std::endl;
-    exit(1);
+    EndProg("memory allocation error" );
   }
   WINDOW* process_window = newwin(3 + n, x_max - 1, system_window->_maxy + 1, 0);
   if(process_window == NULL){
-    std::cout << "memory allocation error" << std::endl;
-    exit(1);
+    EndProg("memory allocation error" );
   }
   keypad(stdscr, TRUE);
   init_pair(1, COLOR_BLUE, COLOR_BLACK);
@@ -189,7 +168,7 @@ void NCursesDisplay::Display(System& system, int n) {
     box(system_window, 0, 0);
     box(process_window, 0, 0);
     DisplaySystem(system, system_window);
-    DisplayProcesses(system.Processes(), process_window, n);
+    DisplayProcesses(std::move(system.Processes()), process_window, n);
     refresh();
     flushinp();
   }
@@ -202,6 +181,9 @@ void NCursesDisplay::Display(System& system, int n) {
     endwin();
     std::cerr << "Exception detected: " <<  e.what() << '\n';
   }
-  
-  
+}
+void NCursesDisplay::EndProg(const char* msg){
+  endwin();
+  std::cout << msg << std::endl;
+  exit(1);
 }

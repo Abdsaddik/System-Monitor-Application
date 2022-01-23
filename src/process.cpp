@@ -12,6 +12,39 @@ using std::string;
 using std::to_string;
 using std::vector;
 
+Process::Process(const Process& rhs){
+  data_ = std::make_unique<processStruct>();
+  data_->command = rhs.data_->command;
+  data_->cpuUti = rhs.data_->cpuUti;
+  data_->pid = rhs.data_->pid;
+  data_->ram = rhs.data_->ram;
+  data_->upTime = rhs.data_->upTime;
+  data_->user = rhs.data_->user;
+  pid_ = rhs.pid_;
+}
+Process::Process(Process&& rhs){
+  data_ = std::move(rhs.data_);
+  pid_ = rhs.pid_;
+  rhs.pid_ = 0;
+}
+Process& Process::operator=(const Process& rhs){
+  if(this == &rhs) return *this;
+  data_->command = rhs.data_->command;
+  data_->cpuUti = rhs.data_->cpuUti;
+  data_->pid = rhs.data_->pid;
+  data_->ram = rhs.data_->ram;
+  data_->upTime = rhs.data_->upTime;
+  data_->user = rhs.data_->user;
+  pid_ = rhs.pid_;
+  return *this;
+}
+Process& Process::operator=(Process&& rhs){
+  data_ = std::move(rhs.data_);
+  pid_ = rhs.pid_;
+  rhs.pid_ = 0;
+  return *this;
+}
+
 // Return this process's ID
 int Process::Pid() { return pid_; }
 
@@ -63,10 +96,10 @@ bool Process::operator<(Process const& a) const {
 }
 
 void Process::calcProcessValues(){
-  data_.pid = Pid();
-  data_.user = User();
-  data_.command = Command();
-  data_.cpuUti = CpuUtilization();
-  data_.ram = Ram();
-  data_.upTime = Format::ElapsedTime(UpTime());
+  data_->pid = Pid();
+  data_->user = User();
+  data_->command = Command();
+  data_->cpuUti = CpuUtilization();
+  data_->ram = Ram();
+  data_->upTime = Format::ElapsedTime(UpTime());
 }

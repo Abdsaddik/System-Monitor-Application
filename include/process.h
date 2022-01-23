@@ -2,6 +2,7 @@
 #define PROCESS_H
 
 #include <string>
+#include <memory>
 
 struct processStruct{
   int pid;
@@ -18,7 +19,13 @@ It contains relevant attributes as shown below
 */
 class Process {
  public:
-  Process(int pid) : pid_{pid} {}
+  // rule of five
+  Process(int pid) : data_{std::make_unique<processStruct>()}, pid_{pid} {}
+  ~Process() = default;
+  Process(const Process&);
+  Process(Process&&);
+  Process& operator=(const Process&);
+  Process& operator=(Process&&);
   // return the pid of the process
   int Pid();
   // return the user of the current process
@@ -33,7 +40,7 @@ class Process {
   long int UpTime();
   bool operator<(Process const& a) const;
   void calcProcessValues();
-  processStruct data_;
+  std::unique_ptr<processStruct> data_;
  private:
   int pid_;
   
