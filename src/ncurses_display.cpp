@@ -141,7 +141,7 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
 }
 
 void NCursesDisplay::LineDisplay(WINDOW* win_, Process&& process_, int&& row_){
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   process_.calcProcessValues();
   std::lock_guard<std::mutex> lck(mutex_);
   // Clear the line
@@ -153,6 +153,7 @@ void NCursesDisplay::LineDisplay(WINDOW* win_, Process&& process_, int&& row_){
     mvwprintw(win_, row_, 30, data.ram.c_str());
     mvwprintw(win_, row_, 40, data.upTime.c_str());
     mvwprintw(win_, row_, 50, data.command.substr(0, win_->_maxx - 46).c_str());
+    wrefresh(win_);
 }
 
 void NCursesDisplay::Display(System& system, int n) {
@@ -179,19 +180,18 @@ void NCursesDisplay::Display(System& system, int n) {
   keypad(stdscr, TRUE);
   init_pair(1, COLOR_BLUE, COLOR_BLACK);
   init_pair(2, COLOR_GREEN, COLOR_BLACK);
-  halfdelay(30);
+  halfdelay(5);
   while (1) { 
     ch = getch();
-    if(ch == KEY_UP) { n++;}
+    if(ch == KEY_RIGHT) break;
+    else if(ch == KEY_UP) { n++;}
     else if(ch == KEY_DOWN && n>10) {n--;}
-    else if(ch == 27) break;
     box(system_window, 0, 0);
     box(process_window, 0, 0);
     DisplaySystem(system, system_window);
     DisplayProcesses(system.Processes(), process_window, n);
-    wrefresh(system_window);
-    wrefresh(process_window);
     refresh();
+    flushinp();
   }
   delwin(system_window);
   delwin(process_window);
