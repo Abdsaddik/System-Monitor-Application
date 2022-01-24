@@ -122,7 +122,7 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>&& processes,
 }
 
 void NCursesDisplay::LineDisplay(WINDOW* win_, Process&& process_, int&& row_){
-  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   process_.calcProcessValues();
   std::lock_guard<std::mutex> lck(mutex_);
   // Clear the line

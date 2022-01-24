@@ -1,6 +1,6 @@
 # Capstone Project
 
-This Capstone Project is based on the second project of the udacity C++ Nano-degree. I choosed to upgrade my Project [System Monitor Application](https://github.com/abdulkarim723/System-Monitor-Application/tree/e6e802dda9ae2f244970a3340c1784b6703570ba) from single thread application to a multithreaded application.
+This Capstone Project is based on the third project of the udacity C++ Nano-degree. I choosed to upgrade my Project [System Monitor Application](https://github.com/abdulkarim723/System-Monitor-Application/tree/e6e802dda9ae2f244970a3340c1784b6703570ba) from single thread application to a multithreaded application.
 
 ## Needed Libraries
 
