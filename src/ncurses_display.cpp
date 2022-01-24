@@ -110,8 +110,7 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>&& processes,
   std::vector<std::future<void>> ftr;
   int processStartIndex = n-10;
   for (int i = processStartIndex; i < n; ++i) {
-    auto p = std::move(processes[i]);
-    ftr.emplace_back(std::async(LineDisplay, window, std::move(p), std::move(++row)));
+    ftr.emplace_back(std::async(LineDisplay, window, std::move(processes[i]), std::move(++row)));
   }
   std::for_each(ftr.begin(), ftr.end(), [](std::future<void>& f){f.wait();});
   }
@@ -123,10 +122,9 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>&& processes,
 }
 
 void NCursesDisplay::LineDisplay(WINDOW* win_, Process&& process_, int&& row_){
-  std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
   process_.calcProcessValues();
   std::lock_guard<std::mutex> lck(mutex_);
-  
   // Clear the line
     mvwprintw(win_, row_, 2, (string(win_->_maxx - 2, ' ').c_str())); 
     auto &data = process_.data_;
